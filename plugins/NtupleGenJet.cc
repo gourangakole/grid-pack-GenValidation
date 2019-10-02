@@ -105,6 +105,7 @@ NtupleGenJet::NtupleGenJet(const edm::ParameterSet& iConfig)
    //now do what ever initialization is needed
    usesResource("TFileService");
    genparticlesToken	   = consumes <reco::GenParticleCollection> (std::string("genParticles"));
+
    edm::Service<TFileService> fs;
    nTPrimeId = fs->make<TH1D>("N_TPrimeId" , ";T/T' Id;Events;;" , 20 , -10 , 10 );
    nHiggs_histo = fs->make<TH1D>("N_Tprime" , ";N_{T/T'};Events;;" , 5 , 0 , 5 );
@@ -154,15 +155,35 @@ NtupleGenJet::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     //int st = p.status();  
     //     double pt = p.pt(), eta = p.eta(), phi = p.phi(), mass = p.mass();
     //std::cout << "pdg id =  "<< id << std::endl;
-    if (id == 8 || id == -8){ // check if it is T/Tprime
+    //    if (abs(id) == 8000001 ) cout << "found Tprime" << endl;
+    if (abs(id) == 8){ // check if it is T/Tprime 8 for pythia generated sample
       //nTPrimeId->Fill(id);
       int n = p.numberOfDaughters();
       if(n < 2 ) continue;
       nTPrimeId->Fill(id);
-      //std::cout << "number of daughter:  " << n << std::endl;
+      //cout << "number of daughter:  " << n << endl;
+
       const reco::Candidate * d1 = p.daughter( 0 );
       const reco::Candidate * d2 = p.daughter( 1 );
       //std::cout << "pdg id of d1=  " << d1->pdgId() << " pdg id of d2=  " << d2->pdgId() << std::endl;
+
+      if (abs(d1->pdgId()) == 6){
+        //cout << "top from tprime"<<endl;
+        //int n1 = d1->numberOfDaughters();
+        //cout << "top daughter: " << n1 << endl;
+	if (d1->numberOfDaughters() >=2 ){
+	  const reco::Candidate * d11 = d1->daughter( 0 );
+	  const reco::Candidate * d12 = d1->daughter( 1 );
+	  cout << "pdg id of top decay products: "<< d11->pdgId() << "  and  " << d12->pdgId() << endl;
+
+	  if (d11->numberOfDaughters() >=2 && abs(d11->pdgId()) == 24){
+	    const reco::Candidate * d111 = d11->daughter( 0 );
+	    const reco::Candidate * d112 = d11->daughter( 1 );
+	    cout << "pdg id of W decay products: " << d111->pdgId() << "  and  " << d112->pdgId() << endl;
+	  }
+	}
+      }
+
       
       if ((std::abs(d1->pdgId())==6 && std::abs(d2->pdgId())==21) || (std::abs(d1->pdgId())==21 && std::abs(d2->pdgId())==6)) // 
 	{
