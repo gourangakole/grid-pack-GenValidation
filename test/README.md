@@ -1,0 +1,1 @@
+cmsRun runAnalyzer.py inputFiles="file:/eos/user/g/gkole/PostDoc/MC_Contact/Madgraph/diHiggs_24x26x/HIG-RunIIFall17wmLHEGS-04093_MG26x.root" maxEvents=-1 outputFile="output_MG26x.root"
