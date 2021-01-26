@@ -39,6 +39,10 @@
 #include "TTree.h"
 #include "TH1.h"
 
+#include "Math/PxPyPzE4D.h"
+#include "Math/LorentzVector.h"
+typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > MyLorentzVector;
+
 //
 // class declaration
 //
@@ -78,6 +82,8 @@ class NtupleGenJet : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
 	TH1F *pt_histo_add_b;
         TH1F *eta_histo_add_b;
         TH1F *phi_histo_add_b;
+  MyLorentzVector quark1;
+  MyLorentzVector quark2;
 };
 
 //
@@ -111,6 +117,8 @@ NtupleGenJet::NtupleGenJet(const edm::ParameterSet& iConfig)
    pt_histo_add_b = fs->make<TH1F>("pT_b" , ";p_{T} of additional b[GeV];Events;;" , 100 , 0 , 500 );
    eta_histo_add_b=fs->make<TH1F>("eta_b" , ";#eta of additional b;Events;;" , 50 , -5 , 5 );
    phi_histo_add_b=fs->make<TH1F>("phi_b" , ";#phi of additional b;Events;;" , 50 , -5 , 5 );
+   quark1.SetPxPyPzE(0., 0., 0., 0.);
+   quark2.SetPxPyPzE(0., 0., 0., 0.);
 }
 
 
@@ -134,15 +142,16 @@ NtupleGenJet::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     edm::Handle<reco::GenParticleCollection> genParticles;
     iEvent.getByToken(genparticlesToken, genParticles);
-//for(reco::GenParticle jet : *(gen_h.product())){
- // for(const auto& jet : genparticles){ 
+    
+    //for(reco::GenParticle jet : *(gen_h.product())){
+    // for(const auto& jet : genparticles){ 
    for(size_t i = 0; i < genParticles->size(); ++ i) {
      const reco::GenParticle & p = (*genParticles)[i];
      int id = p.pdgId();
      //int st = p.status();  
      //     double pt = p.pt(), eta = p.eta(), phi = p.phi(), mass = p.mass();
      //std::cout << "pdg id =  "<< id << std::endl;
-     if (id == 25){ // check if it is H
+     if (id == 37){ // check if it is H
        int n = p.numberOfDaughters();
        if(n < 2 ) continue;
        //std::cout << "number of daughter:  " << n << std::endl;
@@ -150,12 +159,15 @@ NtupleGenJet::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        const reco::Candidate * d2 = p.daughter( 1 );
        //std::cout << "pdg id of d1=  " << d1->pdgId() << " pdg id of d2=  " << d2->pdgId() << std::endl;
        
-       if (std::abs(d1->pdgId())==15 && std::abs(d2->pdgId())==15){ // check when H decays to tau tau
+       if ((std::abs(d1->pdgId())==3 && std::abs(d2->pdgId())==4) || (std::abs(d1->pdgId())==4 && std::abs(d2->pdgId())==3)){ // check when H decays to c s-bar
 	 ++genHiggs_n_;
 	 nHiggs_histo->Fill(genHiggs_n_); // mind it will give a flat histogram at "1" for every entries
 	 pt_histo->Fill(p.pt());
 	 eta_histo->Fill(p.eta());
 	 phi_histo ->Fill(p.phi());
+	 quark1 = d1->p4();
+	 quark2 = d2->p4();
+	 if (0) std::cout << "invariant mass: " << (quark1+quark2).mass() << std::endl;
 	 mass_histo->Fill(p.mass());
 	 //// plotting for b's
 	 pt_histo_lead_b->Fill(d1->pt());

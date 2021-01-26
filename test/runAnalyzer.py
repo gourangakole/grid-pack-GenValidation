@@ -11,7 +11,8 @@ process.source = cms.Source("PoolSource",
                                 fileNames = cms.untracked.vstring(
         #'file:/afs/cern.ch/work/l/lata/grid_pack/genproductions/bin/JHUGen/production_validation_HIG/susy_gridpack_validation/2016_LHEs/HIG-RunIISummer15wmLHEGS-01479.root'
         
-'file:/afs/cern.ch/user/g/gkole/work/public/HIG-RunIISummer15wmLHEGS-01479.root' # for bbHToTauTau 
+       #'file:/afs/cern.ch/user/g/gkole/work/public/HIG-RunIISummer15wmLHEGS-01479.root' # for bbHToTauTau 
+                                    'file:/tmp/gkole/CMSSW_10_6_18/src/HIG-RunIISummer20UL16wmLHEGEN-00039.root'
                 )
                             )
 
